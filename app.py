@@ -5,10 +5,8 @@ import pandas as pd
 import base64
 import os
 
-# PAGE SETUP 
 st.set_page_config(page_title="M-KOPA Analytics Portal", layout="wide", initial_sidebar_state="collapsed")
 
-# CUSTOM M-KOPA CSS INJECTION 
 st.markdown("""
     <style>
     h1, h2, h3, h4 {
@@ -34,7 +32,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# LOAD RAW DATASETS 
 @st.cache_data
 def load_data():
     try:
@@ -48,7 +45,6 @@ def load_data():
 
 calls_df, orders_df, leads_df, campaigns_df = load_data()
 
-# Data Context for the AI
 data_context = ""
 if calls_df is not None:
     data_context = f"""
@@ -59,7 +55,6 @@ if calls_df is not None:
     Campaigns Data (Full): \n{campaigns_df.to_csv(index=False)}
     """
 
-# HEADER WITH EMBEDDED LOGO
 def get_image_base64(image_path):
     if os.path.exists(image_path):
         with open(image_path, "rb") as img_file:
@@ -83,16 +78,11 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# TAB LAYOUT
 tab1, tab2 = st.tabs(["📊 Interactive Dashboards & AI", "📄 Executive Report & Next Steps"])
-
-
-# TAB 1: DASHBOARDS & AI CHAT
 
 with tab1:
     col_dash, col_chat = st.columns([2.2, 1])
 
-    # DASHBOARD TOGGLE 
     with col_dash:
         view_selection = st.radio(
             "Toggle Analytical View:", 
@@ -116,12 +106,10 @@ with tab1:
             except:
                 st.error("Missing '4-weeks.png'. Please ensure the screenshot is uploaded to the root directory.")
 
-    # RIGHT COLUMN: GEMINI AI
     with col_chat:
         st.subheader("🤖 Data Assistant")
         st.info("Ask me anything about the datasets, the 4-week Excel summary, or the 12-week Power BI dashboard.")
         
-        # THE AI BRAIN 
         system_instruction = f"""
         You are the Senior Data Assistant for M-KOPA's telesales team, built by Francis Afful Gyan.
         You have complete knowledge of the end-to-end assessment, the UI dashboards, the data, and the executive report.
@@ -179,24 +167,30 @@ with tab1:
                 
                 try:
                     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                    model = genai.GenerativeModel('gemini-pro')
                     
-                    full_prompt = f"SYSTEM KNOWLEDGE & INSTRUCTIONS:\n{system_instruction}\n\n"
-                    full_prompt += "--- CURRENT CONVERSATION ---\n"
-                    full_prompt += "\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages])
+                    available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
                     
-                    response = model.generate_content(full_prompt)
-                    bot_reply = response.text
+                    if not available_models:
+                        bot_reply = "Error: Your API key is active, but it does not have access to any generation models. Check your Google AI Studio account."
+                    else:
+                        model_name = next((m for m in available_models if '1.5-flash' in m), available_models[0])
+                        
+                        model = genai.GenerativeModel(model_name)
+                        
+                        full_prompt = f"SYSTEM KNOWLEDGE & INSTRUCTIONS:\n{system_instruction}\n\n"
+                        full_prompt += "--- CURRENT CONVERSATION ---\n"
+                        full_prompt += "\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages])
+                        
+                        response = model.generate_content(full_prompt)
+                        bot_reply = response.text
+                        
                 except Exception as e:
-                    bot_reply = f"Error connecting to AI. Please ensure your GEMINI_API_KEY is active. ({e})"
+                    bot_reply = f"System Error: {e}"
                 
                 with st.chat_message("assistant"):
                     st.markdown(bot_reply)
             
             st.session_state.messages.append({"role": "assistant", "content": bot_reply})
-
-
-# TAB 2: EXECUTIVE REPORT
 
 with tab2:
     st.header("Executive Summary: Telesales Performance")
