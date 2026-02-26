@@ -179,12 +179,16 @@ with tab1:
                 
                 try:
                     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                    model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system_instruction)
-                    history = "\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages])
-                    response = model.generate_content(history)
+                    model = genai.GenerativeModel('gemini-pro')
+                    
+                    full_prompt = f"SYSTEM KNOWLEDGE & INSTRUCTIONS:\n{system_instruction}\n\n"
+                    full_prompt += "--- CURRENT CONVERSATION ---\n"
+                    full_prompt += "\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages])
+                    
+                    response = model.generate_content(full_prompt)
                     bot_reply = response.text
                 except Exception as e:
-                    bot_reply = f"Error connecting to AI. Make sure the API key is active. ({e})"
+                    bot_reply = f"Error connecting to AI. Please ensure your GEMINI_API_KEY is active. ({e})"
                 
                 with st.chat_message("assistant"):
                     st.markdown(bot_reply)
