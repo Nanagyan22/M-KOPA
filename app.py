@@ -29,6 +29,12 @@ st.markdown("""
         padding: 5px;
         border-radius: 10px;
     }
+    .sample-q {
+        font-size: 0.9rem;
+        color: #00A859;
+        font-style: italic;
+        margin-bottom: 2px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -47,12 +53,30 @@ calls_df, orders_df, leads_df, campaigns_df = load_data()
 
 data_context = ""
 if calls_df is not None:
+    # --- PRE-CALCULATE ALL DATA DIMENSIONS FOR THE AI ---
+    # 1. Agent Totals
+    agent_calls = calls_df.groupby('agent_id').size().reset_index(name='Total_Calls').sort_values(by='Total_Calls', ascending=False)
+    
+    # 2. Campaign Totals
+    campaign_calls = calls_df.groupby('campaign_id').size().reset_index(name='Total_Calls').sort_values(by='Total_Calls', ascending=False)
+    
+    # 3. Attempt Drop-off Funnel
+    if 'attempt_number' in calls_df.columns:
+        attempt_funnel = calls_df.groupby('attempt_number').size().reset_index(name='Total_Calls')
+    else:
+        attempt_funnel = "Attempt number data not available in raw format."
+
     data_context = f"""
-    RAW DATA SCHEMAS & PREVIEWS:
-    Calls Data (Sample): \n{calls_df.head(100).to_csv(index=False)}
-    Orders Data (Sample): \n{orders_df.head(100).to_csv(index=False)}
-    Leads Data (Sample): \n{leads_df.head(100).to_csv(index=False)}
-    Campaigns Data (Full): \n{campaigns_df.to_csv(index=False)}
+    PRE-CALCULATED SQL AGGREGATIONS (Use these strictly to answer granular data questions):
+    
+    --- 1. AGENT PERFORMANCE MATRIX (Ranked by Call Volume) ---
+    {agent_calls.to_string(index=False)}
+    
+    --- 2. CAMPAIGN VOLUMES (Ranked by Call Volume) ---
+    {campaign_calls.head(10).to_string(index=False)}
+    
+    --- 3. ATTEMPT FUNNEL (Calls per Dial Attempt) ---
+    {attempt_funnel}
     """
 
 def get_image_base64(image_path):
@@ -110,11 +134,20 @@ with tab1:
         st.subheader("🤖 Data Assistant")
         st.info("Ask me anything about the datasets, the 4-week Excel summary, or the 12-week Power BI dashboard.")
         
+        # --- UI ENHANCEMENT: SAMPLE QUESTIONS ---
+        st.markdown("**💡 Try asking:**")
+        st.markdown("<p class='sample-q'>1. What is the total GMV and Conversion Rate for the 12-week period?</p>", unsafe_allow_html=True)
+        st.markdown("<p class='sample-q'>2. Which agent recorded the highest total call volume?</p>", unsafe_allow_html=True)
+        st.markdown("<p class='sample-q'>3. What happens to the connect rate after the 3rd dial attempt?</p>", unsafe_allow_html=True)
+        st.markdown("<p class='sample-q'>4. Which lead source generates the most orders?</p>", unsafe_allow_html=True)
+        st.markdown("<p class='sample-q'>5. What are your top operational recommendations?</p>", unsafe_allow_html=True)
+        st.write("") # Spacer
+        
         system_instruction = f"""
         You are the Senior Data Assistant for M-KOPA's telesales team, built by Francis Afful Gyan.
         You have complete knowledge of the end-to-end assessment, the UI dashboards, the data, and the executive report.
         
-        CRITICAL INSTRUCTION: If asked for totals, KPIs, or metrics, ALWAYS use the hardcoded numbers below to perfectly match the dashboard UI.
+        CRITICAL INSTRUCTION: If asked for totals, KPIs, or metrics, ALWAYS use the hardcoded numbers below to perfectly match the dashboard UI. If asked granular questions (like top agent), refer to the PRE-CALCULATED SQL AGGREGATIONS at the bottom.
         
         PHASE 1: EXCEL (Last 4 Weeks Snapshot - Aug 7 to Sept 4)
         - Total Calls: 2,915
@@ -136,8 +169,7 @@ with tab1:
         - Avg Margin: 27.66%
         - Orders by Lead Source: Cross Sell (27.38%), Winback (23.1%), Inbound (15%), Referral (12.86%), Digital (11.43%), Field (8.33%).
         
-        EXECUTIVE REPORT & INSIGHTS (Quote these if asked for recommendations):
-        - Bottom Line: Agents are working hard to generate $61.73K in GMV, but effort is misaligned after the 3rd attempt, and revenue is concentrated in a few campaigns.
+        EXECUTIVE REPORT & INSIGHTS (Quote these if asked for recommendations or attempt limits):
         - Insight 1: Diminishing Returns. Connection/conversion rates peak at Attempts 1 and 2. They plummet after Attempt 3. High effort, low reward. Action: Implement hard cap on the dialer.
         - Insight 2: Campaign & Agent ROI. GMV remains highly dependent on fresh, top-tier campaigns. Connect rates are uniform, but conversion rates vary heavily by agent. Action: Trace lead sources and peer-to-peer coaching.
         - Strategic Next Steps: 1) Institute 3-attempt dialer cap. 2) Marketing alignment to scale top 5 campaigns. 3) Enablement/Coaching for agents under 3% conversion.
@@ -149,10 +181,11 @@ with tab1:
         
         if "messages" not in st.session_state:
             st.session_state.messages = [
-                {"role": "assistant", "content": "Hello! I am Francis's AI Assistant. I am fully synchronized with the 12-week BI model, the 4-week Excel data, and the final executive recommendations. What would you like to explore?"}
+                {"role": "assistant", "content": "Hello! I am Francis's AI Assistant. I have analyzed all the raw data, calculated agent performance, and memorized the 12-week BI model. How can I help?"}
             ]
 
-        chat_container = st.container(height=520)
+        # Shortened height slightly to make room for the sample questions
+        chat_container = st.container(height=380)
         with chat_container:
             for message in st.session_state.messages:
                 with st.chat_message(message["role"]):
