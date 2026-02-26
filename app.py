@@ -5,10 +5,10 @@ import pandas as pd
 import base64
 import os
 
-# --- 1. PAGE SETUP ---
+# PAGE SETUP 
 st.set_page_config(page_title="M-KOPA Analytics Portal", layout="wide", initial_sidebar_state="collapsed")
 
-# --- CUSTOM M-KOPA CSS INJECTION ---
+# CUSTOM M-KOPA CSS INJECTION 
 st.markdown("""
     <style>
     h1, h2, h3, h4 {
@@ -34,7 +34,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- LOAD RAW DATASETS ---
+# LOAD RAW DATASETS 
 @st.cache_data
 def load_data():
     try:
@@ -59,7 +59,7 @@ if calls_df is not None:
     Campaigns Data (Full): \n{campaigns_df.to_csv(index=False)}
     """
 
-# --- HEADER WITH EMBEDDED LOGO ---
+# HEADER WITH EMBEDDED LOGO
 def get_image_base64(image_path):
     if os.path.exists(image_path):
         with open(image_path, "rb") as img_file:
@@ -83,7 +83,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# --- TAB LAYOUT ---
+# TAB LAYOUT
 tab1, tab2 = st.tabs(["📊 Interactive Dashboards & AI", "📄 Executive Report & Next Steps"])
 
 
@@ -92,7 +92,7 @@ tab1, tab2 = st.tabs(["📊 Interactive Dashboards & AI", "📄 Executive Report
 with tab1:
     col_dash, col_chat = st.columns([2.2, 1])
 
-    # --- LEFT COLUMN: DASHBOARD TOGGLE ---
+    # DASHBOARD TOGGLE 
     with col_dash:
         view_selection = st.radio(
             "Toggle Analytical View:", 
@@ -116,12 +116,12 @@ with tab1:
             except:
                 st.error("Missing '4-weeks.png'. Please ensure the screenshot is uploaded to the root directory.")
 
-    # --- RIGHT COLUMN: GEMINI AI ---
+    # RIGHT COLUMN: GEMINI AI
     with col_chat:
         st.subheader("🤖 Data Assistant")
         st.info("Ask me anything about the datasets, the 4-week Excel summary, or the 12-week Power BI dashboard.")
         
-        # --- THE MASTER AI BRAIN ---
+        # THE AI BRAIN 
         system_instruction = f"""
         You are the Senior Data Assistant for M-KOPA's telesales team, built by Francis Afful Gyan.
         You have complete knowledge of the end-to-end assessment, the UI dashboards, the data, and the executive report.
