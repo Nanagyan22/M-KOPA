@@ -4,3 +4,4 @@ google-generativeai
 openai
 python-dotenv
 google-generativeai
+pandas
