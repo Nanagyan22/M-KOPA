@@ -1,0 +1,13 @@
+campaign_id,campaign_name,campaign_type,start_date,end_date,target_kpi,owner,country
+CAMPFD0TVBDI,Acquisition_KE_1,ACQUISITION,2025-05-23,,3.1% conversion,Ops Manager KE 5,KE
+CAMPPQK51FPK,Retention_KE_2,RETENTION,2025-06-06,2025-07-30,4.9% conversion,Ops Manager KE 2,KE
+CAMP4V30T9NT,Acquisition_GH_3,ACQUISITION,2025-05-27,,4.2% conversion,Ops Manager GH 5,GH
+CAMPX1945NQ4,Retention_GH_4,RETENTION,2025-06-06,,3.8% conversion,Ops Manager GH 2,GH
+CAMP7XVG0FN9,Retention_GH_5,RETENTION,2025-06-05,,2.5% conversion,Ops Manager GH 5,GH
+CAMPIBLJH75L,Retention_UG_6,RETENTION,2025-06-10,2025-07-03,2.5% conversion,Ops Manager UG 4,UG
+CAMPJIUJV6OH,Winback_ZM_7,WINBACK,2025-06-04,,2.2% conversion,Ops Manager ZM 2,ZM
+CAMPW2PCN9T8,Acquisition_ZM_8,ACQUISITION,2025-05-16,2025-06-14,4.6% conversion,Ops Manager ZM 1,ZM
+CAMPXEPQ85JS,Retention_KE_9,RETENTION,2025-06-01,2025-08-09,3.8% conversion,Ops Manager KE 2,KE
+CAMPVF1T2TAL,Winback_KE_10,WINBACK,2025-05-24,2025-07-15,4.1% conversion,Ops Manager KE 1,KE
+CAMPLC58DRC1,Cross_Sell_KE_11,CROSS_SELL,2025-06-12,2025-08-22,2.1% conversion,Ops Manager KE 2,KE
+CAMPJ5PHT0HL,Retention_UG_12,RETENTION,2025-06-14,,4.9% conversion,Ops Manager UG 3,UG
