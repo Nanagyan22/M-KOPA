@@ -179,7 +179,7 @@ with tab1:
                 
                 try:
                     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                    model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system_instruction)
+                    model = genai.GenerativeModel('gemini-1.0-pro', system_instruction=system_instruction)
                     history = "\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages])
                     response = model.generate_content(history)
                     bot_reply = response.text
